@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<title>RJ Sales Agent Leaderboard</title>
+
+<style>
+:root{
+  --bg:#f7f4ee;
+  --card:#fff;
+  --ink:#14213d;
+  --mut:#6b7280;
+  --gold:#b8892b;
+  --bar:#14213d;
+  --line:#e6e0d3;
+  --hi:#f5ecd6;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px)
+}
+
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1526;
+    --card:#16203a;
+    --ink:#f1ece0;
+    --mut:#9aa4b8;
+    --gold:#d9b25a;
+    --bar:#d9b25a;
+    --line:#26314f;
+    --hi:#22304f
+  }
+}
+
+:root[data-theme="dark"]{
+  --bg:#0e1526;
+  --card:#16203a;
+  --ink:#f1ece0;
+  --mut:#9aa4b8;
+  --gold:#d9b25a;
+  --bar:#d9b25a;
+  --line:#26314f;
+  --hi:#22304f
+}
+
+*{
+  box-sizing:border-box
+}
+
+html{
+  scroll-padding-top:env(safe-area-inset-top,0px)
+}
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:"Century Gothic","Avenir Next",Avenir,"Segoe UI",Helvetica,Arial,sans-serif;
+  line-height:1.4
+}
+
+.wrap{
+  max-width:980px;
+  margin:0 auto;
+  padding:20px 16px 40px
+}
+
+h1{
+  font-size:22px;
+  margin:0 0 2px;
+  letter-spacing:.3px
+}
+
+h1 span{
+  color:var(--gold)
+}
+
+.sub{
+  color:var(--mut);
+  font-size:13px;
+  margin:0 0 16px
+}
+
+.tabs{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  margin-bottom:14px
+}
+
+.tabs button{
+  border:1px solid var(--line);
+  background:var(--card);
+  color:var(--ink);
+  padding:7px 14px;
+  border-radius:999px;
+  font:inherit;
+  font-size:13px;
+  cursor:pointer
+}
+
+.tabs button.on{
+  background:var(--ink);
+  color:var(--bg);
+  border-color:var(--ink)
+}
+
+.kpis{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:10px;
+  margin-bottom:14px
+}
+
+.kpi{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:12px 14px;
+  cursor:pointer;
+  text-align:left;
+  color:var(--ink);
+  font:inherit
+}
+
+.kpi.on{
+  border-color:var(--gold);
+  box-shadow:0 0 0 1px var(--gold)
+}
+
+.kpi b{
+  display:block;
+  font-size:26px;
+  margin-top:2px
+}
+
+.kpi small{
+  color:var(--mut);
+  font-size:12px
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:14px 16px;
+  margin-bottom:14px
+}
+
+.card h2{
+  font-size:15px;
+  margin:0 0 10px
+}
+
+.row{
+  display:grid;
+  grid-template-columns:30px 78px 1fr 60px;
+  align-items:center;
+  gap:8px;
+  padding:5px 0
+}
+
+.rk{
+  width:26px;
+  height:26px;
+  border-radius:50%;
+  background:var(--line);
+  font-size:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700
+}
+
+.r1 .rk{
+  background:#d4af37;
+  color:#14213d
+}
+
+.r2 .rk{
+  background:#c0c0c0;
+  color:#14213d
+}
+
+.r3 .rk{
+  background:#cd7f32;
+  color:#fff
+}
+
+.nm{
+  font-size:14px;
+  font-weight:600
+}
+
+.trk{
+  background:var(--line);
+  border-radius:6px;
+  height:14px;
+  overflow:hidden
+}
+
+.fill{
+  height:100%;
+  background:var(--bar);
+  border-radius:6px
+}
+
+.r1 .fill{
+  background:var(--gold)
+}
+
+.val{
+  text-align:right;
+  font-weight:700;
+  font-size:14px
+}
+
+.scroll{
+  overflow-x:auto
+}
+
+table{
+  border-collapse:collapse;
+  width:100%;
+  font-size:13px;
+  min-width:560px
+}
+
+th,td{
+  padding:7px 8px;
+  text-align:right;
+  border-bottom:1px solid var(--line)
+}
+
+th:first-child,
+td:first-child{
+  text-align:left
+}
+
+th{
+  color:var(--mut);
+  font-weight:600;
+  cursor:pointer;
+  white-space:nowrap
+}
+
+td.hl,
+th.hl{
+  background:var(--hi)
+}
+
+.note{
+  color:var(--mut);
+  font-size:12px;
+  margin:6px 0 0
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+  <h1>Agent <span>Leaderboard</span></h1>
+
+  <p class="sub" id="sub"></p>
+
+  <div class="tabs" id="periods"></div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="card">
+    <h2 id="lbt"></h2>
+    <div id="lb"></div>
+  </div>
+
+  <div class="card">
+    <h2>All agents</h2>
+
+    <div class="scroll">
+      <table id="tb"></table>
+    </div>
+
+    <p class="note" id="notes"></p>
+  </div>
+
+</div>
+
+<script>
+
+/* =========================================================
+   GOOGLE APPS SCRIPT API
+   ========================================================= */
+
+const API_URL =
+"https://script.google.com/macros/s/AKfycbw4oxTn6UTxjiWa3pkob3jJMCPm2weD7Y4GHBMRNdujwLwZWXeYKOttg6pIkOOUNGRM/exec";
+
+let DATA = [];
+
+
+/* =========================================================
+   DASHBOARD METRICS
+   ========================================================= */
+
+var M = [
+  "Total Sales",
+  "Saved Cancellation",
+  "General Queries",
+  "Issues Resolved",
+  "Total Interactions"
+];
+
+var S = [
+  "Sales",
+  "Saved Cancellation",
+  "General Queries",
+  "Issues Resolved",
+  "Total Interactions"
+];
+
+
+/* =========================================================
+   PERIOD
+   ========================================================= */
+
+var PER = {
+  Sep:["Sep"]
+};
+
+var PL = {
+  Sep:"September 2026"
+};
+
+var per = "Sep";
+var met = 0;
+
+
+/* =========================================================
+   AGGREGATE DATA
+   ========================================================= */
+
+function agg(){
+
+  var o = {};
+
+  DATA.forEach(function(row){
+
+    var d = new Date(row.date);
+
+    if(isNaN(d)) return;
+
+
+    /* Ignore future dates */
+
+    var today = new Date();
+
+    today.setHours(23,59,59,999);
+
+    if(d > today) return;
+
+
+    /* Get month */
+
+    var month = d.toLocaleString(
+      "en-US",
+      {month:"short"}
+    );
+
+    if(!PER[per].includes(month)) return;
+
+
+    /* Agent */
+
+    var a = row.agent;
+
+    if(!a) return;
+
+
+    /* Create agent */
+
+    if(!o[a]){
+
+      o[a] = {
+        v:[0,0,0,0,0]
+      };
+
+    }
+
+
+    /* Values from API */
+
+    var values = [
+
+      row.sales,
+
+      row.savedCancellation,
+
+      row.generalQueries,
+
+      row.issuesResolved,
+
+      row.totalInteractions
+
+    ];
+
+
+    /* Add values */
+
+    for(var i=0;i<5;i++){
+
+      var value = Number(values[i]);
+
+      if(!isNaN(value)){
+
+        o[a].v[i] += value;
+
+      }
+
+    }
+
+  });
+
+
+  /* Convert object to array */
+
+  return Object.keys(o).map(function(a){
+
+    return {
+
+      n:a,
+
+      v:o[a].v
+
+    };
+
+  });
+
+}
+
+
+/* =========================================================
+   BUTTON CREATOR
+   ========================================================= */
+
+function btn(cls,txt,fn){
+
+  var b = document.createElement("button");
+
+  b.className = cls;
+
+  b.innerHTML = txt;
+
+  b.onclick = fn;
+
+  return b;
+
+}
+
+
+/* =========================================================
+   RENDER DASHBOARD
+   ========================================================= */
+
+function render(){
+
+  var rows = agg();
+
+  var tot = [0,0,0,0,0];
+
+
+  /* Calculate team totals */
+
+  rows.forEach(function(r){
+
+    for(var i=0;i<5;i++){
+
+      tot[i] += r.v[i];
+
+    }
+
+  });
+
+
+  /* Sort leaderboard */
+
+  rows.sort(function(a,b){
+
+    return b.v[met] - a.v[met] ||
+           a.n.localeCompare(b.n);
+
+  });
+
+
+  /* Subtitle */
+
+  document.getElementById("sub").textContent =
+    PL[per] +
+    " · " +
+    rows.length +
+    " agents · Updated through today";
+
+
+  /* =======================================================
+     PERIOD BUTTON
+     ======================================================= */
+
+  var pe = document.getElementById("periods");
+
+  pe.innerHTML = "";
+
+  pe.appendChild(
+
+    btn(
+
+      "on",
+
+      "September 2026",
+
+      function(){
+
+        per = "Sep";
+
+        render();
+
+      }
+
+    )
+
+  );
+
+
+  /* =======================================================
+     KPI CARDS
+     ======================================================= */
+
+  var kp = document.getElementById("kpis");
+
+  kp.innerHTML = "";
+
+
+  for(var i=0;i<5;i++)
+
+    (function(i){
+
+      var k = btn(
+
+        "kpi" + (i===met ? " on" : ""),
+
+        "<small>" +
+        M[i] +
+        "</small>" +
+        "<b>" +
+        tot[i].toLocaleString() +
+        "</b>",
+
+        function(){
+
+          met = i;
+
+          render();
+
+        }
+
+      );
+
+      kp.appendChild(k);
+
+    })(i);
+
+
+  /* =======================================================
+     LEADERBOARD TITLE
+     ======================================================= */
+
+  document.getElementById("lbt").textContent =
+    "Leaderboard · " + M[met];
+
+
+  /* =======================================================
+     LEADERBOARD
+     ======================================================= */
+
+  var mx = rows.length
+    ? Math.max(1,rows[0].v[met])
+    : 1;
+
+  var h = "";
+
+
+  if(!rows.length){
+
+    h =
+      '<div class="note">' +
+      'No data available for this period.' +
+      '</div>';
+
+  }
+
+
+  rows.forEach(function(r,i){
+
+    h +=
+
+      '<div class="row r' + (i+1) + '">' +
+
+        '<div class="rk">' +
+          (i+1) +
+        '</div>' +
+
+        '<div class="nm">' +
+          r.n +
+        '</div>' +
+
+        '<div class="trk">' +
+
+          '<div class="fill" style="width:' +
+            (r.v[met] / mx * 100) +
+            '%' +
+          '"></div>' +
+
+        '</div>' +
+
+        '<div class="val">' +
+          r.v[met].toLocaleString() +
+        '</div>' +
+
+      '</div>';
+
+  });
+
+
+  document.getElementById("lb").innerHTML = h;
+
+
+  /* =======================================================
+     TABLE HEADER
+     ======================================================= */
+
+  var t = "<tr><th>Agent</th>";
+
+
+  for(var j=0;j<5;j++){
+
+    t +=
+
+      '<th class="' +
+      (j===met ? "hl" : "") +
+      '" data-m="' +
+      j +
+      '">' +
+      S[j] +
+      '</th>';
+
+  }
+
+
+  t += "</tr>";
+
+
+  /* =======================================================
+     TABLE ROWS
+     ======================================================= */
+
+  rows.forEach(function(r){
+
+    t +=
+
+      "<tr>" +
+
+        "<td>" +
+          r.n +
+        "</td>";
+
+
+    for(var j=0;j<5;j++){
+
+      t +=
+
+        '<td class="' +
+        (j===met ? "hl" : "") +
+        '">' +
+        r.v[j].toLocaleString() +
+        "</td>";
+
+    }
+
+
+    t += "</tr>";
+
+  });
+
+
+  /* =======================================================
+     TEAM TOTAL
+     ======================================================= */
+
+  t +=
+
+    '<tr>' +
+
+      '<td><b>Team</b></td>' +
+
+      tot.map(function(x,j){
+
+        return (
+
+          '<td class="' +
+          (j===met ? "hl" : "") +
+          '">' +
+
+          '<b>' +
+          x.toLocaleString() +
+          '</b>' +
+
+          '</td>'
+
+        );
+
+      }).join("") +
+
+    "</tr>";
+
+
+  /* =======================================================
+     INSERT TABLE
+     ======================================================= */
+
+  var tb = document.getElementById("tb");
+
+  tb.innerHTML = t;
+
+
+  /* =======================================================
+     CLICKABLE TABLE HEADERS
+     ======================================================= */
+
+  tb.querySelectorAll("th[data-m]")
+
+    .forEach(function(th){
+
+      th.onclick = function(){
+
+        met = +th.dataset.m;
+
+        render();
+
+      };
+
+    });
+
+
+  /* =======================================================
+     NOTE
+     ======================================================= */
+
+  document.getElementById("notes").textContent =
+
+    "Source: Sales/Case Resolved Tracker -Daily · " +
+    "September 2026 · " +
+    "Data refreshes automatically every 60 seconds.";
+
+}
+
+
+/* =========================================================
+   INITIAL API LOAD
+   ========================================================= */
+
+fetch(API_URL)
+
+  .then(function(response){
+
+    return response.json();
+
+  })
+
+  .then(function(data){
+
+    DATA = data;
+
+    render();
+
+  })
+
+  .catch(function(error){
+
+    console.error("API Error:",error);
+
+    document.getElementById("sub").textContent =
+      "Unable to load sales data.";
+
+  });
+
+
+/* =========================================================
+   AUTOMATIC REFRESH EVERY 60 SECONDS
+   ========================================================= */
+
+setInterval(function(){
+
+  fetch(API_URL)
+
+    .then(function(response){
+
+      return response.json();
+
+    })
+
+    .then(function(data){
+
+      DATA = data;
+
+      render();
+
+    })
+
+    .catch(function(error){
+
+      console.error("Refresh Error:",error);
+
+    });
+
+},60000);
+
+</script>
+
+</body>
+</html>
